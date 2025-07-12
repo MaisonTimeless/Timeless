@@ -1,27 +1,50 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Roue de la chance</title>
+  <title>Jeu Timeless</title>
   <style>
     body {
       font-family: 'Arial', sans-serif;
-      background: #f7f7f7;
+      background: #fefefe;
       text-align: center;
-      padding: 30px;
+      padding-top: 30px;
+      margin: 0;
+      overflow-x: hidden;
+    }
+
+    #logo {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      width: 80px;
+      z-index: 10;
     }
 
     h1 {
-      color: #333;
+      margin-top: 100px;
+      font-size: 28px;
+      color: #5e4228;
+    }
+
+    #arrow {
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-bottom: 30px solid #e74c3c;
+      margin: 0 auto;
+      position: relative;
+      top: -320px;
     }
 
     #wheel {
       width: 300px;
       height: 300px;
       border-radius: 50%;
-      border: 10px solid #555;
-      margin: 30px auto;
+      border: 10px solid #8e6e53;
+      margin: 0 auto;
       position: relative;
       overflow: hidden;
       transition: transform 4s cubic-bezier(0.33, 1, 0.68, 1);
@@ -44,27 +67,18 @@
     .btn {
       padding: 15px 30px;
       font-size: 18px;
-      background: #27ae60;
+      background: #5e4228;
       color: white;
       border: none;
       border-radius: 8px;
       cursor: pointer;
+      margin-top: 40px;
     }
 
     #resultat {
       font-size: 22px;
       margin-top: 20px;
-    }
-
-    #arrow {
-      width: 0;
-      height: 0;
-      border-left: 20px solid transparent;
-      border-right: 20px solid transparent;
-      border-bottom: 30px solid #e74c3c;
-      margin: 0 auto;
-      position: relative;
-      top: -340px;
+      color: #5e4228;
     }
 
     canvas {
@@ -77,7 +91,10 @@
 </head>
 <body>
 
-  <h1>Tourne la roue !</h1>
+  <!-- Logo -->
+  <img id="logo" src="logo couleur timeless.jpeg" alt="Logo Timeless" />
+
+  <h1>Tourne la roue ✨</h1>
   <div id="arrow"></div>
   <div id="wheel"></div>
   <button class="btn" onclick="tourner()">Jouer</button>
@@ -86,20 +103,18 @@
   <canvas id="confetti-canvas"></canvas>
 
   <script>
+    const options = [
+      "🎉 Bravo, tu as gagné !",
+      "😢 Perdu, retente ta chance"
+    ];
+
+    const colors = ["#b28967", "#e0c097"];
     const wheel = document.getElementById('wheel');
     const resultat = document.getElementById('resultat');
     const canvas = document.getElementById('confetti-canvas');
     const ctx = canvas.getContext('2d');
 
-    const options = [
-      "🎉 Bravo, tu as gagné !",
-      "😢 Perdu, retente ta chance",
-     
-    ];
-
-    const colors = ["#e74c3c", "#f1c40f", "#2ecc71", "#3498db"];
-
-    // Dessiner la roue
+    // Créer la roue
     function dessinerRoue() {
       wheel.innerHTML = '';
       const angle = 360 / options.length;
@@ -125,7 +140,7 @@
 
       setTimeout(() => {
         resultat.innerText = options[rand];
-        if (options[rand].includes("Bravo") || options[rand].includes("gagné") || options[rand].includes("🎁") || options[rand].includes("🥤")) {
+        if (options[rand].includes("gagné")) {
           lancerConfettis();
         }
       }, 4000);
