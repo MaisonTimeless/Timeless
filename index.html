@@ -1,28 +1,181 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Mini Jeu de Hasard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Roue de la chance</title>
   <style>
-    body { font-family: Arial; text-align: center; margin-top: 100px; }
-    button { padding: 20px; font-size: 20px; }
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #f7f7f7;
+      text-align: center;
+      padding: 30px;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    #wheel {
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      border: 10px solid #555;
+      margin: 30px auto;
+      position: relative;
+      overflow: hidden;
+      transition: transform 4s cubic-bezier(0.33, 1, 0.68, 1);
+    }
+
+    .slice {
+      width: 50%;
+      height: 50%;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform-origin: 0% 100%;
+      background: red;
+      color: white;
+      text-align: center;
+      line-height: 2;
+      font-size: 16px;
+    }
+
+    .btn {
+      padding: 15px 30px;
+      font-size: 18px;
+      background: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #resultat {
+      font-size: 22px;
+      margin-top: 20px;
+    }
+
+    #arrow {
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-bottom: 30px solid #e74c3c;
+      margin: 0 auto;
+      position: relative;
+      top: -340px;
+    }
+
+    canvas {
+      position: fixed;
+      pointer-events: none;
+      top: 0;
+      left: 0;
+    }
   </style>
 </head>
 <body>
-  <h1>Tente ta chance !</h1>
-  <button onclick="jouer()">Jouer</button>
+
+  <h1>Tourne la roue !</h1>
+  <div id="arrow"></div>
+  <div id="wheel"></div>
+  <button class="btn" onclick="tourner()">Jouer</button>
   <p id="resultat"></p>
 
+  <canvas id="confetti-canvas"></canvas>
+
   <script>
-    function jouer() {
-      const resultats = [
-        "🎉 Bravo, tu as gagné !",
-        "😢 Désolé, retente ta chance !",
-       
-        
-      ];
-      const choix = Math.floor(Math.random() * resultats.length);
-      document.getElementById("resultat").innerText = resultats[choix];
+    const wheel = document.getElementById('wheel');
+    const resultat = document.getElementById('resultat');
+    const canvas = document.getElementById('confetti-canvas');
+    const ctx = canvas.getContext('2d');
+
+    const options = [
+      "🎉 Bravo, tu as gagné !",
+      "😢 Perdu, retente ta chance",
+     
+    ];
+
+    const colors = ["#e74c3c", "#f1c40f", "#2ecc71", "#3498db"];
+
+    // Dessiner la roue
+    function dessinerRoue() {
+      wheel.innerHTML = '';
+      const angle = 360 / options.length;
+      for (let i = 0; i < options.length; i++) {
+        const slice = document.createElement('div');
+        slice.className = 'slice';
+        slice.style.transform = `rotate(${i * angle}deg) skewY(-${90 - angle}deg)`;
+        slice.style.background = colors[i % colors.length];
+        slice.innerHTML = `<div style="transform: skewY(${90 - angle}deg) rotate(${angle / 2}deg); padding: 10px;">${options[i]}</div>`;
+        wheel.appendChild(slice);
+      }
+    }
+
+    dessinerRoue();
+
+    let angle = 0;
+    function tourner() {
+      const rand = Math.floor(Math.random() * options.length);
+      const degParOption = 360 / options.length;
+      const rotation = (360 * 5) + (360 - rand * degParOption - degParOption / 2);
+      angle += rotation;
+      wheel.style.transform = `rotate(${angle}deg)`;
+
+      setTimeout(() => {
+        resultat.innerText = options[rand];
+        if (options[rand].includes("Bravo") || options[rand].includes("gagné") || options[rand].includes("🎁") || options[rand].includes("🥤")) {
+          lancerConfettis();
+        }
+      }, 4000);
+    }
+
+    // Confettis 🎉
+    let confettis = [];
+
+    function lancerConfettis() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      confettis = [];
+
+      for (let i = 0; i < 200; i++) {
+        confettis.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height - canvas.height,
+          r: Math.random() * 6 + 4,
+          d: Math.random() * 10 + 5,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          tilt: Math.random() * 10 - 5
+        });
+      }
+
+      requestAnimationFrame(drawConfettis);
+    }
+
+    function drawConfettis() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let c of confettis) {
+        ctx.beginPath();
+        ctx.lineWidth = c.r;
+        ctx.strokeStyle = c.color;
+        ctx.moveTo(c.x + c.tilt, c.y);
+        ctx.lineTo(c.x + c.tilt + c.r / 2, c.y + c.r * 2);
+        ctx.stroke();
+      }
+      updateConfettis();
+      requestAnimationFrame(drawConfettis);
+    }
+
+    function updateConfettis() {
+      for (let c of confettis) {
+        c.y += c.d;
+        c.tilt += Math.random() * 2 - 1;
+        if (c.y > canvas.height) {
+          c.y = -10;
+          c.x = Math.random() * canvas.width;
+        }
+      }
     }
   </script>
 </body>
