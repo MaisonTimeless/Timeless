@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Mini Jeu de Hasard</title>
+  <style>
+    body { font-family: Arial; text-align: center; margin-top: 100px; }
+    button { padding: 20px; font-size: 20px; }
+  </style>
+</head>
+<body>
+  <h1>Tente ta chance !</h1>
+  <button onclick="jouer()">Jouer</button>
+  <p id="resultat"></p>
+
+  <script>
+    function jouer() {
+      const resultats = [
+        "🎉 Bravo, tu as gagné !",
+        "😢 Désolé, retente ta chance !",
+       
+        
+      ];
+      const choix = Math.floor(Math.random() * resultats.length);
+      document.getElementById("resultat").innerText = resultats[choix];
+    }
+  </script>
+</body>
+</html>
