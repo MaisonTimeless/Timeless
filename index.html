@@ -49,10 +49,19 @@
       top: 0;
       left: 50%;
       transform-origin: 0% 100%;
-      color: white;
+      border: 1px solid black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .slice .label {
+      transform: rotate(-90deg);
       text-align: center;
-      line-height: 2;
       font-size: 14px;
+      font-weight: bold;
+      color: white;
+      width: 100px;
     }
 
     .btn {
@@ -91,33 +100,39 @@
   <canvas id="confetti-canvas"></canvas>
 
   <script>
-    const options = [
-      "🎉 Bravo, tu as gagné !",
-      "😢 Perdu, retente ta chance",
-      "😢 Perdu, retente ta chance",
-      "🎉 Bravo, tu as gagné !",
-      "😢 Perdu, retente ta chance"
-    ];
-
-    const colors = ["#b28967", "#e0c097", "#b28967", "#e0c097", "#b28967"];
     const wheel = document.getElementById('wheel');
     const resultat = document.getElementById('resultat');
     const playBtn = document.getElementById('playBtn');
     const canvas = document.getElementById('confetti-canvas');
     const ctx = canvas.getContext('2d');
 
+    const options = [true, false, false, true, false]; // true = gagné, false = perdu
+    const gagnantIndex = [0, 3];
+    const perdantIndex = [1, 2, 4];
+    const gagnantColor = "#d4af37";   // Or
+    const perdantColor = "#c9b29c";   // Brun clair
+
     let hasPlayed = false;
     let angle = 0;
 
     function dessinerRoue() {
       wheel.innerHTML = '';
-      const anglePerSlice = 360 / options.length;
+      const angleParCase = 360 / options.length;
+
       for (let i = 0; i < options.length; i++) {
         const slice = document.createElement('div');
         slice.className = 'slice';
-        slice.style.transform = `rotate(${i * anglePerSlice}deg) skewY(-${90 - anglePerSlice}deg)`;
-        slice.style.background = colors[i % colors.length];
-        slice.innerHTML = `<div style="transform: skewY(${90 - anglePerSlice}deg) rotate(${anglePerSlice / 2}deg); padding: 10px;">${options[i]}</div>`;
+        slice.style.transform = `rotate(${i * angleParCase}deg) skewY(-${90 - angleParCase}deg)`;
+        slice.style.background = options[i] ? gagnantColor : perdantColor;
+
+        // Ajoute le texte seulement si "gagné"
+        if (options[i]) {
+          const label = document.createElement('div');
+          label.className = 'label';
+          label.innerText = "🎉 Bravo !";
+          slice.appendChild(label);
+        }
+
         wheel.appendChild(slice);
       }
     }
@@ -130,14 +145,12 @@
       hasPlayed = true;
       playBtn.disabled = true;
 
-      const isWin = Math.random() < 0.4; // 40% de chance de gagner (2 sur 5)
-      const gagnantIndex = [0, 3];
+      const isWin = Math.random() < 0.4; // 40% chance de gagner
       let rand;
 
       if (isWin) {
         rand = gagnantIndex[Math.floor(Math.random() * gagnantIndex.length)];
       } else {
-        const perdantIndex = [1, 2, 4];
         rand = perdantIndex[Math.floor(Math.random() * perdantIndex.length)];
       }
 
@@ -147,9 +160,11 @@
       wheel.style.transform = `rotate(${angle}deg)`;
 
       setTimeout(() => {
-        resultat.innerText = options[rand];
-        if (options[rand].includes("gagné")) {
+        if (options[rand]) {
+          resultat.innerText = "🎉 Bravo, tu as gagné !";
           lancerConfettis();
+        } else {
+          resultat.innerText = "😢 Perdu, retente ta chance";
         }
       }, 4000);
     }
@@ -168,7 +183,7 @@
           y: Math.random() * canvas.height - canvas.height,
           r: Math.random() * 6 + 4,
           d: Math.random() * 10 + 5,
-          color: colors[Math.floor(Math.random() * colors.length)],
+          color: ["#d4af37", "#fff4cc", "#ffdc73"][Math.floor(Math.random() * 3)],
           tilt: Math.random() * 10 - 5
         });
       }
