@@ -14,16 +14,8 @@
       overflow-x: hidden;
     }
 
-    #logo {
-      position: fixed;
-      top: 15px;
-      left: 15px;
-      width: 80px;
-      z-index: 10;
-    }
-
     h1 {
-      margin-top: 100px;
+      margin-top: 60px;
       font-size: 28px;
       color: #5e4228;
     }
@@ -57,11 +49,10 @@
       top: 0;
       left: 50%;
       transform-origin: 0% 100%;
-      background: red;
       color: white;
       text-align: center;
       line-height: 2;
-      font-size: 16px;
+      font-size: 14px;
     }
 
     .btn {
@@ -91,13 +82,10 @@
 </head>
 <body>
 
-  <!-- Logo -->
-  <img id="logo" src="logo couleur timeless.jpeg" alt="Logo Timeless" />
-
   <h1>Tourne la roue ✨</h1>
   <div id="arrow"></div>
   <div id="wheel"></div>
-  <button class="btn" onclick="tourner()">Jouer</button>
+  <button class="btn" id="playBtn" onclick="tourner()">Jouer</button>
   <p id="resultat"></p>
 
   <canvas id="confetti-canvas"></canvas>
@@ -105,34 +93,54 @@
   <script>
     const options = [
       "🎉 Bravo, tu as gagné !",
+      "😢 Perdu, retente ta chance",
+      "😢 Perdu, retente ta chance",
+      "🎉 Bravo, tu as gagné !",
       "😢 Perdu, retente ta chance"
     ];
 
-    const colors = ["#b28967", "#e0c097"];
+    const colors = ["#b28967", "#e0c097", "#b28967", "#e0c097", "#b28967"];
     const wheel = document.getElementById('wheel');
     const resultat = document.getElementById('resultat');
+    const playBtn = document.getElementById('playBtn');
     const canvas = document.getElementById('confetti-canvas');
     const ctx = canvas.getContext('2d');
 
-    // Créer la roue
+    let hasPlayed = false;
+    let angle = 0;
+
     function dessinerRoue() {
       wheel.innerHTML = '';
-      const angle = 360 / options.length;
+      const anglePerSlice = 360 / options.length;
       for (let i = 0; i < options.length; i++) {
         const slice = document.createElement('div');
         slice.className = 'slice';
-        slice.style.transform = `rotate(${i * angle}deg) skewY(-${90 - angle}deg)`;
+        slice.style.transform = `rotate(${i * anglePerSlice}deg) skewY(-${90 - anglePerSlice}deg)`;
         slice.style.background = colors[i % colors.length];
-        slice.innerHTML = `<div style="transform: skewY(${90 - angle}deg) rotate(${angle / 2}deg); padding: 10px;">${options[i]}</div>`;
+        slice.innerHTML = `<div style="transform: skewY(${90 - anglePerSlice}deg) rotate(${anglePerSlice / 2}deg); padding: 10px;">${options[i]}</div>`;
         wheel.appendChild(slice);
       }
     }
 
     dessinerRoue();
 
-    let angle = 0;
     function tourner() {
-      const rand = Math.floor(Math.random() * options.length);
+      if (hasPlayed) return;
+
+      hasPlayed = true;
+      playBtn.disabled = true;
+
+      const isWin = Math.random() < 0.4; // 40% de chance de gagner (2 sur 5)
+      const gagnantIndex = [0, 3];
+      let rand;
+
+      if (isWin) {
+        rand = gagnantIndex[Math.floor(Math.random() * gagnantIndex.length)];
+      } else {
+        const perdantIndex = [1, 2, 4];
+        rand = perdantIndex[Math.floor(Math.random() * perdantIndex.length)];
+      }
+
       const degParOption = 360 / options.length;
       const rotation = (360 * 5) + (360 - rand * degParOption - degParOption / 2);
       angle += rotation;
@@ -146,7 +154,7 @@
       }, 4000);
     }
 
-    // Confettis 🎉
+    // Confettis
     let confettis = [];
 
     function lancerConfettis() {
